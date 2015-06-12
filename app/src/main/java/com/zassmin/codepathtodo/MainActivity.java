@@ -1,5 +1,6 @@
 package com.zassmin.codepathtodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -17,7 +18,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity { // how come blank activity doesn't extend `Activity`?
+
+    private final int REQUEST_CODE = 20;
+
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
@@ -31,6 +35,7 @@ public class MainActivity extends ActionBarActivity {
         itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
         setupListViewListener();
+        setupListViewItemListener(); // does order matter?
     }
 
     private void setupListViewListener() {
@@ -42,6 +47,20 @@ public class MainActivity extends ActionBarActivity {
                         itemsAdapter.notifyDataSetChanged();
                         writeItems();
                         return true;
+                    }
+                }
+        );
+    }
+
+    private void setupListViewItemListener() {
+        lvItems.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent i = new Intent(MainActivity.this, EditItemActivity.class);
+                        i.putExtra("item", items.get(position));
+                        i.putExtra("position", position);
+                        startActivityForResult(i, REQUEST_CODE);
                     }
                 }
         );
@@ -95,5 +114,17 @@ public class MainActivity extends ActionBarActivity {
         itemsAdapter.add(itemText);
         etNewItem.setText("");
         writeItems();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            String item = data.getStringExtra("item");
+            int position = data.getIntExtra("position", 0);
+            items.remove(position);
+            items.add(position, item);
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+        }
     }
 }
