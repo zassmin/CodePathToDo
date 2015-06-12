@@ -14,3 +14,4 @@ Remaining TODOs (but not related to requirements):
 Walkthrough: 
 
 ![Video Walkthrough](https://vid.me/6Lqt)
+[walkthrough gif](https://vid.me/6Lqt)
