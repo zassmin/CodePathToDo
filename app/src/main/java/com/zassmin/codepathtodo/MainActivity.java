@@ -26,7 +26,7 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
     private final int REQUEST_CODE = 20;
 
     ArrayList<TodoItem> items;
-    ArrayAdapter<TodoItem> itemsAdapter;
+    TodoItemAdapter itemsAdapter;
     ListView lvItems;
     TodoItemDbHelper db;
 
@@ -34,13 +34,19 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        lvItems = (ListView) findViewById(R.id.lvItems);
+
+        // load db and data
         db = new TodoItemDbHelper(this);
         readItems();
 
-        // TODO: create custom array adapter to parse the object
-        itemsAdapter = new ArrayAdapter<TodoItem>(this, android.R.layout.simple_list_item_1, items);
+        // set custom adaptor
+        itemsAdapter = new TodoItemAdapter(this, items);
+
+        // set adapter
+        lvItems = (ListView) findViewById(R.id.lvItems);
         lvItems.setAdapter(itemsAdapter);
+
+        // call listeners
         setupListViewListener();
         setupListViewItemListener(); // does order matter?
     }
@@ -51,7 +57,7 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                         TodoItem oldItem = items.remove(position);
-                        db.deleteTodoItem(oldItem);
+                        db.deleteTodoItem(oldItem); // FIXME: figure out return here
                         itemsAdapter.notifyDataSetChanged();
                         writeItems();
                         return true;
@@ -66,7 +72,7 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                        i.putExtra("item", items.get(position).toString()); // FIXME: this will return object as string, we can't edit object
+                        i.putExtra("item", items.get(position).getItemName());
                         i.putExtra("position", position);
                         startActivityForResult(i, REQUEST_CODE);
                     }
