@@ -59,7 +59,6 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
                         TodoItem oldItem = items.remove(position);
                         db.deleteTodoItem(oldItem); // FIXME: figure out return here
                         itemsAdapter.notifyDataSetChanged();
-                        writeItems();
                         return true;
                     }
                 }
@@ -82,16 +81,6 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
 
     private void readItems() {
         items = new ArrayList<TodoItem>(db.getAllTodoItems());
-    }
-
-    private void writeItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            FileUtils.writeLines(todoFile, items);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -124,7 +113,6 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
         db.addTodoItem(item);
         itemsAdapter.add(item);
         etNewItem.setText("");
-        writeItems();
     }
 
     @Override
@@ -138,7 +126,6 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
             db.updateTodoItem(item);
             items.add(position, item); // TodoItem now updated
             itemsAdapter.notifyDataSetChanged();
-            writeItems();
         }
     }
 }
