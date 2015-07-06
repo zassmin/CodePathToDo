@@ -80,8 +80,9 @@ public class TodoItemDbHelper extends SQLiteOpenHelper {
         String countQuery = "SELECT * FROM " + TABLE_TODO;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
+        int count = cursor.getCount();
         cursor.close();
-        return cursor.getCount();
+        return count;
     }
 
     // this will replace getting the entire list
@@ -118,7 +119,7 @@ public class TodoItemDbHelper extends SQLiteOpenHelper {
         int result = db.update(TABLE_TODO, values, KEY_ID + " = ?",
                 new String[] { String.valueOf(item.getId()) });
         db.close();
-        return result; // this is not an object anymore, is it?
+        return result;
     }
 
     // this will replace deleting/remove records

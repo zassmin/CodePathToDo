@@ -11,6 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.zassmin.codepathtodo.data.TodoItem;
+import com.zassmin.codepathtodo.data.TodoItemDbHelper;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -22,17 +25,21 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
 
     private final int REQUEST_CODE = 20;
 
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
+    ArrayList<TodoItem> items;
+    ArrayAdapter<TodoItem> itemsAdapter;
     ListView lvItems;
+    TodoItemDbHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         lvItems = (ListView) findViewById(R.id.lvItems);
+        db = new TodoItemDbHelper(this);
         readItems();
-        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+
+        // TODO: create custom array adapter to parse the object
+        itemsAdapter = new ArrayAdapter<TodoItem>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
         setupListViewListener();
         setupListViewItemListener(); // does order matter?
@@ -43,7 +50,8 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                        items.remove(position);
+                        TodoItem oldItem = items.remove(position);
+                        db.deleteTodoItem(oldItem);
                         itemsAdapter.notifyDataSetChanged();
                         writeItems();
                         return true;
@@ -58,7 +66,7 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                        i.putExtra("item", items.get(position));
+                        i.putExtra("item", items.get(position).toString()); // FIXME: this will return object as string, we can't edit object
                         i.putExtra("position", position);
                         startActivityForResult(i, REQUEST_CODE);
                     }
@@ -67,13 +75,7 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
     }
 
     private void readItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
-        } catch (IOException e) {
-            items = new ArrayList<String>();
-        }
+        items = new ArrayList<TodoItem>(db.getAllTodoItems());
     }
 
     private void writeItems() {
@@ -111,7 +113,10 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
     public void onAddItem(View view) {
         EditText etNewItem = (EditText) (findViewById(R.id.etNewItem));
         String itemText = etNewItem.getText().toString();
-        itemsAdapter.add(itemText);
+        int position = itemsAdapter.getCount();
+        TodoItem item = new TodoItem(itemText, position);
+        db.addTodoItem(item);
+        itemsAdapter.add(item);
         etNewItem.setText("");
         writeItems();
     }
@@ -119,10 +124,13 @@ public class MainActivity extends ActionBarActivity { // how come blank activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            String item = data.getStringExtra("item");
+            String itemText = data.getStringExtra("item");
             int position = data.getIntExtra("position", 0);
-            items.remove(position);
-            items.add(position, item);
+            TodoItem item = items.remove(position);
+            item.setPriority(position);
+            item.setItemName(itemText);
+            db.updateTodoItem(item);
+            items.add(position, item); // TodoItem now updated
             itemsAdapter.notifyDataSetChanged();
             writeItems();
         }

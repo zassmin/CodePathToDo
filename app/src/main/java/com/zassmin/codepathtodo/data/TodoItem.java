@@ -10,7 +10,7 @@ public class TodoItem {
 
     // initializer
     public TodoItem(String itemName, int priority) {
-        super(); // super sets id?
+        super(); // does not set id
         this.itemName = itemName;
         this.priority = priority;
     }
