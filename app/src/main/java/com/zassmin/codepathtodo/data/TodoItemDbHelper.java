@@ -51,40 +51,6 @@ public class TodoItemDbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // this will replace finding by position
-    // instance.find(id)
-    public TodoItem getTodoItem(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_TODO,
-                new String[] { KEY_ID, KEY_ITEM_NAME, KEY_PRIORITY },
-                KEY_ID + "= ?", new String[] { String.valueOf(id) },
-                null, null, "id ASC", "100");
-        if (cursor != null) {
-            cursor.moveToFirst();
-        }
-
-        // load result into item object
-        TodoItem item = new TodoItem(cursor.getString(1), cursor.getInt(1));
-        item.setId(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ID)));
-
-        if (cursor != null) {
-            cursor.close();
-        }
-
-        // return object
-        return item;
-    }
-
-    // this gets us the count of the entire list
-    public int getTodoItemCount() {
-        String countQuery = "SELECT * FROM " + TABLE_TODO;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        int count = cursor.getCount();
-        cursor.close();
-        return count;
-    }
-
     // this will replace getting the entire list
     public List<TodoItem> getAllTodoItems() {
         List<TodoItem> todoItems = new ArrayList<TodoItem>();
