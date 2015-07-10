@@ -8,10 +8,10 @@ Steps:
 * [x] when you click save on edit view, you are directed back to the todo list
 
 Remaining TODOs (but not related to requirements):
-* [ ] add sqlite3 integration
-* [ ] give it some styling with animations
+* [x] add sqlite3 integration
+* [x] implement custom adaptor
 
 Walkthrough: 
 
-![Video Walkthrough](https://vid.me/6Lqt)
-[walkthrough gif](https://vid.me/6Lqt)
+![Gif Walkthrough](http://i.imgur.com/phz4hMg.gif)
+[walkthrough gif](http://i.imgur.com/phz4hMg.gif)
